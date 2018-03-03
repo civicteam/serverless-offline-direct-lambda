@@ -1,5 +1,5 @@
 {
-  "name": "offline-direct-lambda",
+  "name": "serverless-offline-direct-lambda",
   "version": "0.0.1",
   "description": "A Serverless Offline plugin that exposes lambdas with no API Gateway event via HTTP, to allow offline direct lambda-to-lambda interactions.",
   "main": "index.js",
