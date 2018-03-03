@@ -1,57 +1,57 @@
 'use strict';
 
+const packagePath = 'node_modules/dankelleher/offline-direct-lambda';
+const handlerPath = `proxy.js`;
+
 class ServerlessPlugin {
   constructor(serverless, options) {
     this.serverless = serverless;
     this.options = options;
 
-    this.commands = {
-      welcome: {
-        usage: 'Helps you start your first Serverless plugin',
-        lifecycleEvents: [
-          'hello',
-          'world',
-        ],
-        options: {
-          message: {
-            usage:
-              'Specify the message you want to deploy '
-              + '(e.g. "--message \'My Message\'" or "-m \'My Message\'")',
-            required: true,
-            shortcut: 'm',
-          },
-        },
-      },
-    };
-
     this.hooks = {
-      'before:welcome:hello': this.beforeWelcome.bind(this),
-      'welcome:hello': this.welcomeUser.bind(this),
-      'welcome:world': this.displayHelloMessage.bind(this),
-      'after:welcome:world': this.afterHelloWorld.bind(this),
       "before:offline:start:init": this.startHandler.bind(this),
     };
   }
 
   startHandler() {
     this.serverless.cli.log('Running Serverless Offline with direct lambda support');
-  }
 
-  beforeWelcome() {
-    this.serverless.cli.log('Hello from Serverless!');
-  }
-
-  welcomeUser() {
-    this.serverless.cli.log('Your message:');
-  }
-
-  displayHelloMessage() {
-    this.serverless.cli.log(`${this.options.message}`);
-  }
-
-  afterHelloWorld() {
-    this.serverless.cli.log('Please come again!');
+    addProxies(this.serverless.service.functions);
   }
 }
+
+const addProxies = functionsObject => {
+  Object.keys(functionsObject).forEach(fn => {
+    const pf = functionProxy(functionsObject[fn]);
+    functionsObject[pf.name] = pf;
+  });
+};
+
+const functionProxy = functionBeingProxied => ({
+  name: `${functionBeingProxied.name}_proxy`,
+  handler: `${packagePath}/proxy.handler`,
+  events: [
+    {
+      http: {
+        method: 'POST',
+        path: `proxy/${functionBeingProxied.name}`,
+        integration: 'lambda',
+        request: {
+          template: {
+            'application/json': JSON.stringify(
+              {
+                targetHandler :  functionBeingProxied.handler,
+                body: "$input.json('$')"
+              }
+            )
+          }
+        }
+      }
+    }
+  ],
+  package: {
+    include: [handlerPath],
+  }
+});
 
 module.exports = ServerlessPlugin;
