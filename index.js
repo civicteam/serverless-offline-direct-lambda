@@ -1,6 +1,6 @@
 'use strict';
 
-const packagePath = 'node_modules/dankelleher/offline-direct-lambda';
+const packagePath = 'node_modules/offline-direct-lambda';
 const handlerPath = `proxy.js`;
 
 class ServerlessPlugin {
@@ -22,8 +22,14 @@ class ServerlessPlugin {
 
 const addProxies = functionsObject => {
   Object.keys(functionsObject).forEach(fn => {
-    const pf = functionProxy(functionsObject[fn]);
-    functionsObject[pf.name] = pf;
+
+    // filter out functions with event config,
+    // leaving just those intended for direct lambda-to-lambda invocation
+    const functionObject = functionsObject[fn];
+    if (!functionObject.events || functionObject.events.length == 0) {
+      const pf = functionProxy(functionObject);
+      functionsObject[pf.name] = pf;
+    }
   });
 };
 
