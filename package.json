@@ -14,5 +14,8 @@
     "Direct"
   ],
   "author": "Daniel Kelleher",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "serialize-error": "^2.1.0"
+  }
 }
