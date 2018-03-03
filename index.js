@@ -1,6 +1,6 @@
 'use strict';
 
-const packagePath = 'node_modules/offline-direct-lambda';
+const packagePath = 'node_modules/serverless-offline-direct-lambda';
 const handlerPath = `proxy.js`;
 
 class ServerlessPlugin {
