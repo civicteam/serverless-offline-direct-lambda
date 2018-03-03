@@ -1,0 +1,18 @@
+{
+  "name": "offline-direct-lambda",
+  "version": "0.0.1",
+  "description": "A Serverless Offline plugin that exposes lambdas with no API Gateway event via HTTP, to allow offline direct lambda-to-lambda interactions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "AWS",
+    "Lambda",
+    "Serverless",
+    "Offline",
+    "Direct"
+  ],
+  "author": "Daniel Kelleher",
+  "license": "ISC"
+}
