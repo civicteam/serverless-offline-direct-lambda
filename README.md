@@ -5,7 +5,9 @@ Note - this requires the plugin 'serverless-offline'.
 
 To include in your project, add the following to the plugins section in serverless.yml:
 
+```
 - serverless-offline-direct-lambda
+```
 
 To run:
 
