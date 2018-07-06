@@ -42,6 +42,7 @@ const addProxies = (functionsObject, location) => {
 const functionProxy = (functionBeingProxied, location) => ({
   name: `${functionBeingProxied.name}_proxy`,
   handler: `${packagePath}/proxy.handler`,
+  environment: functionBeingProxied.environment,
   events: [
     {
       http: {
