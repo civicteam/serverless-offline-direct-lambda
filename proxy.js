@@ -1,7 +1,7 @@
 const serializeError = require('serialize-error');
 const path = require('path');
 
-export async function handler(event, context) {
+async function handler(event, context) {
   const { ClientContext, FunctionName, InvocationType, LogType, Payload } = event.body;
 
   // extract the path to the handler (relative to the project root)
@@ -35,3 +35,5 @@ export async function handler(event, context) {
     return { StatusCode: 500, FunctionError: 'Handled', Payload: serializeError(error) };
   }
 }
+
+module.exports.handler = handler;
