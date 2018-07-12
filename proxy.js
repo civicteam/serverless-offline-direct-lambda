@@ -1,7 +1,7 @@
 const serializeError = require('serialize-error');
 const path = require('path');
 
-async function handler(event, context, callback) {
+export async function handler(event, context) {
   const { ClientContext, FunctionName, InvocationType, LogType, Payload } = event.body;
 
   // extract the path to the handler (relative to the project root)
@@ -15,21 +15,23 @@ async function handler(event, context, callback) {
     clientContext: JSON.parse(Buffer.from(ClientContext, 'base64')),
   };
 
-  // call the target function
-  return target[targetHandlerFunction](targetEvent, targetContext, (error, response) => {
-    if (error) {
-      callback(null, {
-        StatusCode: 500,
-        FunctionError: 'Handled',
-        Payload: serializeError(error),
-      });
-    } else {
-      callback(null, {
-        StatusCode: 200,
-        Payload: JSON.stringify(response),
-      });
+  const funcResult = new Promise((resolve, reject) => {
+    const result = target[targetHandlerFunction](targetEvent, targetContext, (error, response) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(response);
+      }
+    });
+
+    if (result && typeof result.then === 'function' && typeof result.catch === 'function') {
+      result.then(resolve).catch(reject);
     }
   });
-}
 
-module.exports.handler = handler;
+  try {
+    return { StatusCode: 200, Payload: JSON.stringify(await funcResult) };
+  } catch (error) {
+    return { StatusCode: 500, FunctionError: 'Handled', Payload: serializeError(error) };
+  }
+}
