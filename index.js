@@ -8,8 +8,11 @@ class ServerlessPlugin {
     this.serverless = serverless;
     this.options = options;
 
+    const boundStartHandler = this.startHandler.bind(this);
+
     this.hooks = {
-      'before:offline:start': this.startHandler.bind(this),
+      'before:offline:start': boundStartHandler,
+      'before:offline:start:init': boundStartHandler,
     };
   }
 
