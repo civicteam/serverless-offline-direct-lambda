@@ -12,8 +12,11 @@ async function handler(event, context) {
   const targetEvent = JSON.parse(Payload);
   const targetContext = {
     ...context,
-    clientContext: JSON.parse(Buffer.from(ClientContext, 'base64')),
   };
+
+  if (ClientContext) {
+    targetContext.clientContext = JSON.parse(Buffer.from(ClientContext, 'base64'));
+  }
 
   const funcResult = new Promise((resolve, reject) => {
     const result = target[targetHandlerFunction](targetEvent, targetContext, (error, response) => {
