@@ -10,8 +10,8 @@ const awsSerializedError = error => {
     errorName: name,
     errorStack: stack,
   }
-  
 }
+
 function handler(event, context, callback) {
   // extract the path to the handler (relative to the project root)
   // and the function to call on the handler
@@ -24,7 +24,7 @@ function handler(event, context, callback) {
       callback(null, {
         StatusCode: 200,
         FunctionError: 'Handled',
-        Payload: awsSerializedError(error)
+        Payload: JSON.stringify(awsSerializedError(error))
       })
     } else {
       callback(null, {
