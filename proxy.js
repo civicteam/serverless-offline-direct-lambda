@@ -1,5 +1,17 @@
 const serializeError = require('serialize-error');
+const awsSerializedError = error => {
+  if (typeof error === 'string')
+    return { errorMessage: error }
 
+  const { name, message, stack } = serializeError(error)
+  
+  return {
+    errorMessage: message,
+    errorName: name,
+    errorStack: stack,
+  }
+  
+}
 function handler(event, context, callback) {
   // extract the path to the handler (relative to the project root)
   // and the function to call on the handler
@@ -10,9 +22,9 @@ function handler(event, context, callback) {
   target[targetHandlerFunction](event.body, context, (error, response) => {
     if (error) {
       callback(null, {
-        StatusCode: 500,
+        StatusCode: 200,
         FunctionError: 'Handled',
-        Payload: serializeError(error)
+        Payload: awsSerializedError(error)
       })
     } else {
       callback(null, {
