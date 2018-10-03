@@ -1,12 +1,8 @@
 const serializeError = require('serialize-error');
 const awsSerializedError = error => {
-  if (typeof error === 'string')
-    return { errorMessage: error }
-
   const { name, message, stack } = serializeError(error)
-  
   return {
-    errorMessage: message,
+    errorMessage: message || error,
     errorName: name,
     errorStack: stack,
   }
