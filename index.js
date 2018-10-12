@@ -29,11 +29,13 @@ class ServerlessPlugin {
 
     this.serverless.cli.log('Running Serverless Offline with direct lambda support');
 
-    addProxies(this.serverless.service.functions, location);
+    addProxies(this.serverless.service.functions,
+               location,
+               this.serverless.service.provider.tracing === 'true');
   }
 }
 
-const addProxies = (functionsObject, location) => {
+const addProxies = (functionsObject, location, tracing) => {
   Object.keys(functionsObject).forEach(fn => {
 
     // filter out functions with event config,
@@ -41,13 +43,13 @@ const addProxies = (functionsObject, location) => {
     const functionObject = functionsObject[fn];
     if (!functionObject.events ||
         !functionObject.events.some((event) => Object.keys(event)[0] === 'http')) {
-      const pf = functionProxy(functionObject, location);
+      const pf = functionProxy(functionObject, location, tracing);
       functionsObject[pf.name] = pf;
     }
   });
 };
 
-const functionProxy = (functionBeingProxied, location) => ({
+const functionProxy = (functionBeingProxied, location, tracing) => ({
   name: `${functionBeingProxied.name}_proxy`,
   handler: `${packagePath}/proxy.handler`,
   environment: functionBeingProxied.environment,
@@ -62,8 +64,18 @@ const functionProxy = (functionBeingProxied, location) => ({
             'application/json': JSON.stringify(
               {
                 location,
+                headers: `{
+                  #set( $map = $input.params().header )
+                  #foreach($key in $map.keySet())
+                    "$util.escapeJavaScript($key)": "$util.escapeJavaScript($map.get($key))"
+                    #if( $foreach.hasNext )
+                      ,
+                    #end
+                  #end
+                }`,
                 body: "$input.json('$')",
-                targetHandler :  functionBeingProxied.handler,
+                targetHandler:  functionBeingProxied.handler,
+                tracing,
               }
             )
           }
