@@ -1,41 +1,56 @@
 'use strict';
 
 const packagePath = 'node_modules/serverless-offline-direct-lambda';
-const handlerPath = `proxy.js`;
+const handlerPath = 'proxy.js';
 
 class ServerlessPlugin {
   constructor(serverless, options) {
     this.serverless = serverless;
     this.options = options;
 
+    const boundStartHandler = this.startHandler.bind(this);
+
     this.hooks = {
-      "before:offline:start:init": this.startHandler.bind(this),
+      'before:offline:start': boundStartHandler,
+      'before:offline:start:init': boundStartHandler,
     };
   }
 
   startHandler() {
+    // Serverless Webpack overrides the location to its output directory. Set
+    // location to that directory.
+    let location = '';
+    try {
+      location = this.serverless.service.custom['serverless-offline'].location;
+      this.serverless.service.custom['serverless-offline'].location = '';
+    } catch (_) { }
+
+    location = `${this.serverless.config.servicePath}/${location}`;
+
     this.serverless.cli.log('Running Serverless Offline with direct lambda support');
 
-    addProxies(this.serverless.service.functions);
+    addProxies(this.serverless.service.functions, location);
   }
 }
 
-const addProxies = functionsObject => {
+const addProxies = (functionsObject, location) => {
   Object.keys(functionsObject).forEach(fn => {
 
     // filter out functions with event config,
     // leaving just those intended for direct lambda-to-lambda invocation
     const functionObject = functionsObject[fn];
-    if (!functionObject.events || functionObject.events.length == 0) {
-      const pf = functionProxy(functionObject);
+    if (!functionObject.events ||
+        !functionObject.events.some((event) => Object.keys(event)[0] === 'http')) {
+      const pf = functionProxy(functionObject, location);
       functionsObject[pf.name] = pf;
     }
   });
 };
 
-const functionProxy = functionBeingProxied => ({
+const functionProxy = (functionBeingProxied, location) => ({
   name: `${functionBeingProxied.name}_proxy`,
   handler: `${packagePath}/proxy.handler`,
+  environment: functionBeingProxied.environment,
   events: [
     {
       http: {
@@ -46,8 +61,9 @@ const functionProxy = functionBeingProxied => ({
           template: {
             'application/json': JSON.stringify(
               {
+                location,
+                body: "$input.json('$')",
                 targetHandler :  functionBeingProxied.handler,
-                body: "$input.json('$')"
               }
             )
           }
