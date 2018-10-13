@@ -26,7 +26,7 @@ async function handler(event, context) {
       const ns = awsXRay.getNamespace();
       if (!ns.active) {
         const [Root, Parent, Sampled] = event.headers['X-Amzn-Trace-Id'].split(';');
-        const segment = new awsXRay.Segment(targetHandlerFunction, Root.split('=')[1], Parent.split('=')[1]);
+        const segment = new awsXRay.Segment(event.handlerName, Root.split('=')[1], Parent.split('=')[1]);
         targetHandler = ns.bind((event, context, callback) => {
           awsXRay.setSegment(segment);
           target[targetHandlerFunction](event, context, (error, result) => {

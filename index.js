@@ -75,6 +75,7 @@ const functionProxy = (functionBeingProxied, location, tracing) => ({
                 }`,
                 body: "$input.json('$')",
                 targetHandler:  functionBeingProxied.handler,
+                handlerName: functionBeingProxied.name,
                 tracing,
               }
             )
