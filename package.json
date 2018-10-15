@@ -17,5 +17,8 @@
   "license": "ISC",
   "dependencies": {
     "serialize-error": "^2.1.0"
+  },
+  "devDependencies": {
+    "aws-xray-sdk": "^2.0.0"
   }
 }
