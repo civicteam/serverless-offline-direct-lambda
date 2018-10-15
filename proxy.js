@@ -25,15 +25,18 @@ async function handler(event, context) {
     if (event.tracing) {
       const ns = awsXRay.getNamespace();
       if (!ns.active) {
-        const [Root, Parent, Sampled] = event.headers['X-Amzn-Trace-Id'].split(';');
-        const segment = new awsXRay.Segment(event.handlerName, Root.split('=')[1], Parent.split('=')[1]);
-        targetHandler = ns.bind((event, context, callback) => {
-          awsXRay.setSegment(segment);
-          target[targetHandlerFunction](event, context, (error, result) => {
-            segment.close();
-            callback(error, result);
+        const amazonTracing = event.headers['X-Amzn-Trace-Id'];
+        if (amazonTracing) {
+          const [Root, Parent, Sampled] = amazonTracing.split(';');
+          const segment = new awsXRay.Segment(event.handlerName, Root.split('=')[1], Parent.split('=')[1]);
+          targetHandler = ns.bind((event, context, callback) => {
+            awsXRay.setSegment(segment);
+            target[targetHandlerFunction](event, context, (error, result) => {
+              segment.close();
+              callback(error, result);
+            });
           });
-        });
+        }
       }
     }
 
