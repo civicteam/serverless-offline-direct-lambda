@@ -14,28 +14,35 @@ class ServerlessPlugin {
   }
 
   startHandler() {
+    let location = '';
+    try {
+      location = this.serverless.service.custom['serverless-offline'].location;
+      this.serverless.service.custom['serverless-offline'].location = '';
+    } catch (_) { }
+
     this.serverless.cli.log('Running Serverless Offline with direct lambda support');
 
-    addProxies(this.serverless.service.functions);
+    addProxies(this.serverless.service.functions, location);
   }
 }
 
-const addProxies = functionsObject => {
+const addProxies = (functionsObject, location) => {
   Object.keys(functionsObject).forEach(fn => {
 
     // filter out functions with event config,
     // leaving just those intended for direct lambda-to-lambda invocation
     const functionObject = functionsObject[fn];
     if (!functionObject.events || functionObject.events.length == 0) {
-      const pf = functionProxy(functionObject);
+      const pf = functionProxy(functionObject, location);
       functionsObject[pf.name] = pf;
     }
   });
 };
 
-const functionProxy = functionBeingProxied => ({
+const functionProxy = (functionBeingProxied, location) => ({
   name: `${functionBeingProxied.name}_proxy`,
   handler: `${packagePath}/proxy.handler`,
+  environment: functionBeingProxied.environment,
   events: [
     {
       http: {
@@ -46,8 +53,9 @@ const functionProxy = functionBeingProxied => ({
           template: {
             'application/json': JSON.stringify(
               {
+                location,
+                body: "$input.json('$')",
                 targetHandler :  functionBeingProxied.handler,
-                body: "$input.json('$')"
               }
             )
           }
