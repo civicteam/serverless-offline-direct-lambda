@@ -51,6 +51,9 @@ const functionProxy = functionBeingProxied => ({
               }
             )
           }
+        },
+        response: {
+          headers: {}
         }
       }
     }
