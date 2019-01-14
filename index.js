@@ -87,9 +87,7 @@ const functionProxy = (functionBeingProxied, location) => ({
           }
         },
         response: {
-          headers: {
-            "Content-Type": "application/json"
-          }
+          headers: {}
         }
       }
     }
