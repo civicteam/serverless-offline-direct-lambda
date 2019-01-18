@@ -33,7 +33,10 @@ The plugin will create api-gateway proxies for all lambdas with *no* triggering 
 You will see output like this:
 
 ```bash
-$ sls offline start
+export AWS_SDK_USED=node
+
+sls offline start
+
 Serverless: Running Serverless Offline with direct lambda support
 Serverless: Starting Offline: dev/us-east-1.
 
@@ -65,6 +68,8 @@ curl -X POST \
 You may also invoke the function by using the AWS SDK on your client side...
 This can be done by specifying a custom "endpoint" in your Lambda configuration like so:
 
+**Note:** the AWS SDK for NodeJS actually sends a different content type header on it's request to the Lambda API then all the other AWS SDK's (Python, Rails etc).. You will need to `export AWS_SDK_USED=node` before running the `serverless offline` if you wish to use this with the NodeJS AWS SDK. 
+
 ```javascript
 
 var AWS = require('aws-sdk');
@@ -94,3 +99,4 @@ lambda.invoke(params, function(err, data) {
 })
 
 ```
+

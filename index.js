@@ -3,6 +3,72 @@
 const packagePath = 'node_modules/serverless-offline-direct-lambda';
 const handlerPath = `proxy.js`;
 
+var AWS_SDK_USED = process.env.AWS_SDK_USED || 'rails';
+function AWS_SDK_METHOD(functionBeingProxied, location) {
+
+    if(AWS_SDK_USED == 'node') {
+
+        // Additional support to call the function from the AWS SDK (NodeJS) directly...
+        var AWS_SDK_NODE_METHOD = {
+          http: {
+            method: 'POST',
+            // This is the path to the Lambda API..
+            path: `2015-03-31/functions/${functionBeingProxied.name}/invocations`,
+            integration: 'lambda',
+            request: {
+              template: {
+                // NB: AWS SDK for NodeJS specifies as 'binary/octet-stream' not 'application/json'
+                'binary/octet-stream': JSON.stringify(
+                  {
+                    location,   
+                    body: "$input.body",
+                    targetHandler :  functionBeingProxied.handler,
+                  }
+                )
+              }
+            },
+            response: {
+              headers: {
+                "Content-Type": "application/json"
+              }
+            }
+          }
+        };
+        return AWS_SDK_NODE_METHOD;
+
+    } else {
+
+        // Additional support to call the function from the All other SDK's (Don't ask why AWS did it like this ......)
+        var AWS_SDK_RAILS_METHOD = {
+          http: {
+            method: 'POST',
+            // This is the path to the Lambda API..
+            path: `2015-03-31/functions/${functionBeingProxied.name}/invocations`,
+            integration: 'lambda',
+            request: {
+              template: {
+                // NB: AWS SDK for NodeJS specifies as 'binary/octet-stream' not 'application/json'
+                'application/json': JSON.stringify(
+                  {
+                    location,   
+                    body: "$input.json('$')",
+                    targetHandler :  functionBeingProxied.handler,
+                  }
+                )
+              }
+            },
+            response: {
+              headers: {
+                "Content-Type": "application/json"
+              }
+            }
+          }
+        };
+        return AWS_SDK_RAILS_METHOD;
+    }
+
+};
+
 class ServerlessPlugin {
   constructor(serverless, options) {
     this.serverless = serverless;
@@ -66,31 +132,10 @@ const functionProxy = (functionBeingProxied, location) => ({
         }
       }
     },
+ 
+    // See methods above for further details
+    AWS_SDK_METHOD(functionBeingProxied, location)
 
-    // Additional support to call the function from the AWS SDK directly...
-    {
-      http: {
-        method: 'POST',
-        // This is the path to the Lambda API..
-        path: `2015-03-31/functions/${functionBeingProxied.name}/invocations`,
-        integration: 'lambda',
-        request: {
-          template: {
-            // NB: AWS SDK for NodeJS specifies as 'binary/octet-stream' not 'application/json'
-            'binary/octet-stream': JSON.stringify(
-              {
-                location,   
-                body: "$input.body",
-                targetHandler :  functionBeingProxied.handler,
-              }
-            )
-          }
-        },
-        response: {
-          headers: {}
-        }
-      }
-    }
   ],
   package: {
     include: [handlerPath],
