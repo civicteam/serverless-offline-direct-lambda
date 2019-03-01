@@ -17,7 +17,7 @@ class ServerlessPlugin {
     }
 
     async aquireDependencies() {
-        const config = this.serverless.service.custom["lambda-invoke"];
+        const config = this.serverless.service.custom["dependency-invoke"];
         const dependencies = config.dependencies;
         const storage = path.join(this.serverless.service.serverless.config.servicePath, "dependencies");
         let dependencyPromiseArray = [];

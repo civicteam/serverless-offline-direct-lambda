@@ -17,13 +17,13 @@ function handler(event, context, callback) {
         } else {
             callback(null, {
                 StatusCode: 200,
-                Payload: JSON.stringify(response)
+                Payload: response.body
             })
         }
     }).then((response) => {
         return {
             StatusCode: response.statusCode,
-            Payload: JSON.stringify(response.body)
+            Payload: response.body
         };
     }).catch((error) => {
         return {
