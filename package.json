@@ -1,21 +1,27 @@
 {
-  "name": "serverless-offline-direct-lambda",
+  "name": "serverless-dependency-invoke",
   "version": "0.0.1",
-  "description": "A Serverless Offline plugin that exposes lambdas with no API Gateway event via HTTP, to allow offline direct lambda-to-lambda interactions.",
+  "description": "A Serverless plugin that allows you to declare dependency projects from git repositories which can be invoked using aws-sdk.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gmlazu/serverless-dependency-invoke"
+  },
+  "bugs": {
+    "url": "https://github.com/gmlazu/serverless-dependency-invoke/issues"
+  },
+  "homepage": "https://github.com/gmlazu/serverless-dependency-invoke",
   "keywords": [
     "AWS",
     "Lambda",
     "Serverless",
     "Offline",
-    "Direct"
+    "Dependency",
+    "Injection"
   ],
-  "author": "Daniel Kelleher",
-  "license": "ISC",
-  "dependencies": {
-    "serialize-error": "^2.1.0"
-  }
+  "author": "Lazu George Mihai",
+  "license": "MIT"
 }
