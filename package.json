@@ -1,6 +1,6 @@
 {
   "name": "serverless-dependency-invoke",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A Serverless plugin that allows you to declare dependency projects from git repositories which can be invoked using aws-sdk.",
   "main": "index.js",
   "scripts": {
