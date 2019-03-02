@@ -9,21 +9,14 @@ function handler(event, context, callback) {
     // call the target function
     const targetResponse = target[targetHandlerFunction](event.body, context, (error, response) => {
         if (error) {
-            callback(null, {
-                StatusCode: 500,
-                FunctionError: 'Handled',
-                Payload: error
-            })
+            callback(response.error)
         } else {
-            callback(null, {
-                StatusCode: 200,
-                Payload: response.body
-            })
+            callback(null, response.body)
         }
     }).then((response) => {
         return response.body;
     }).catch((error) => {
-        return error.body
+        throw new Error(error.body)
     });
 
     if (targetResponse) {
