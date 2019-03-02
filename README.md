@@ -5,6 +5,7 @@ This Serverless plugin allows you to define any number of dependency Serverless 
 This plugin requires you to have:
 * NodeJS 8.10 or later
 * [serverless-offline](https://www.npmjs.com/package/serverless-offline)
+* Git installed and in your `PATH`
 
 and is also compatible with [serverless-plugin-typescript](https://www.npmjs.com/package/serverless-plugin-typescript).
 
@@ -22,7 +23,7 @@ custom:
       - name: your-project-name
         lang: javascript
         git: git@github.com:you/your-project-name.git
-        branch: develop
+        branch: master
         handler: path/to/handler.handlerFn
         commands:
           - npm install
@@ -47,24 +48,28 @@ To enable this plugin, you need to add it in your plugin configuration under `pl
 plugins:
     - serverless-dependency-invoke
 ```
+Please note that the order of plugins is important, and this plugin needs to be loaded after `serverless-offline`. If you use `serverless-plugin-typescript`, you need to load it before `serverless-offline`.
 
 ### Lambda Invocation
-The dependencies that are loaded are exposed via serverless-offline in the same format that [AWS Lambda](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Lambda.html) uses, and allow you to invoke your dependencies by calling invoke:
+The dependencies that are loaded are exposed via serverless-offline in the same way that [AWS Lambda](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Lambda.html) expects, and allow you to invoke your dependencies by using the AWS SDK:
 ```
-AWS.Lambda.invoke(invokeParams).promise({
-    FunctionName: "your-function-name",
-    InvocationType: "Event",
-    LogType: "Tail",
-    Payload: JSON.stringify({
-        your_custom_event_attribute: your_custom_event_value
-    }),
-})
+AWS.Lambda.invoke({
+  FunctionName: "your-function-name",
+  InvocationType: "Event",
+  LogType: "Tail",
+  Payload: JSON.stringify({
+      your_custom_event_attribute: your_custom_event_value
+  }),
+}).promise()
 .then((response: any) => {
     console.log(response);
 })
 ```
 
+### Know issues
+* If you are using `serverless-plugin-typescript`, you may notice that errors occur when this plugin tries to recompile the ts files. This happens because the plugin is looking at your Lambda invocation proxy event that is constructed by this plugin, and attempts to compile any ts files, although there aren't any.
+
 #### Copyright & license
-This plugin was made for a very specific use case, and is what I'd call a big hack. If you reached this corner of the internet in your desperate search for this and you have the same use case, i feel bad for you.
+This plugin was made for a very specific use case, and is what I'd call a big hack. If you reached this corner of the internet in your desperate search for something like this, I feel bad for you.
 
 The license is MIT, and you are free to do whatever you want with this. If you find any issues, you can feel free to make a ticket in the issues section, fix the issue yourself and make a PR, or even fork this repo. 
