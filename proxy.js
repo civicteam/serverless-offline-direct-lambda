@@ -7,12 +7,12 @@ function handler(event, context, callback) {
     const target = require(path.resolve(__dirname, '../..', event.location, targetHandlerFile));
 
     // call the target function
-    return target[targetHandlerFunction](event.body, context, (error, response) => {
+    const targetResponse = target[targetHandlerFunction](event.body, context, (error, response) => {
         if (error) {
             callback(null, {
                 StatusCode: 500,
                 FunctionError: 'Handled',
-                Payload: serializeError(error)
+                Payload: error
             })
         } else {
             callback(null, {
@@ -21,17 +21,14 @@ function handler(event, context, callback) {
             })
         }
     }).then((response) => {
-        return {
-            StatusCode: response.statusCode,
-            Payload: response.body
-        };
+        return response.body;
     }).catch((error) => {
-        return {
-            StatusCode: error.statusCode,
-            FunctionError: 'Handled',
-            Payload: JSON.stringify(error.body)
-        };
+        return error.body
     });
+
+    if (targetResponse) {
+        return targetResponse;
+    }
 }
 
 module.exports.handler = handler;
