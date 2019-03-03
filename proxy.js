@@ -13,10 +13,6 @@ function handler(event, context, callback) {
         } else {
             callback(null, response.body)
         }
-    }).then((response) => {
-        return response.body;
-    }).catch((error) => {
-        throw new Error(error.body)
     });
 
     if (targetResponse) {

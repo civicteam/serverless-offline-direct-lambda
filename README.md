@@ -53,7 +53,8 @@ Please note that the order of plugins is important, and this plugin needs to be 
 ### Lambda Invocation
 The dependencies that are loaded are exposed via serverless-offline in the same way that [AWS Lambda](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/Lambda.html) expects, and allow you to invoke your dependencies by using the AWS SDK:
 ```
-AWS.Lambda.invoke({
+const lambda = new AWS.Lambda({ apiVersion: "2015-03-31", endpoint: "http://localhost:3000" });
+lambda.invoke({
   FunctionName: "your-function-name",
   InvocationType: "Event",
   LogType: "Tail",
@@ -61,7 +62,7 @@ AWS.Lambda.invoke({
       your_custom_event_attribute: your_custom_event_value
   }),
 }).promise()
-.then((response: any) => {
+.then((response) => {
     console.log(response);
 })
 ```

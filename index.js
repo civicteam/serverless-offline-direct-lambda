@@ -131,6 +131,11 @@ const functionProxy = (dependency, location) => ({
                             {
                                 location,
                                 body: "$input.body",
+                                headers: {
+                                    "X-Amz-Invocation-Type": "$input.params().header.get('X-Amz-Invocation-Type')",
+                                    "X-Amz-Log-Type": "$input.params().header.get('X-Amz-Log-Type')",
+                                    "X-Amz-Client-Context": "$input.params().header.get('X-Amz-Client-Context')"
+                                },
                                 targetHandler : dependency.handler,
                             }
                         )
