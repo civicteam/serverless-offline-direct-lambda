@@ -20,7 +20,7 @@ class ServerlessPlugin {
         const config = this.serverless.service.custom["dependency-invoke"];
         const dependencies = config.dependencies;
         const storage = path.join(this.serverless.service.serverless.config.servicePath, "dependencies");
-        let dependencyPromiseArray = [];
+        let dependencyPromiseArray;
 
         if (!fs.existsSync(storage)) {
             fs.mkdirSync(storage);
@@ -92,8 +92,6 @@ class ServerlessPlugin {
                     this.serverless.cli.log(`Command ${command} failed\n${error}`);
                 });
         }
-
-        return;
     }
 
     startHandler(dependencies) {

@@ -28,7 +28,7 @@ custom:
         commands:
           - npm install
           - node_modules/serverless/bin/serverless dynamodb install
-          - node_modules/serverless/bin/serverless dynamodb start --port 8003 -m --seed=technical-records
+          - node_modules/serverless/bin/serverless dynamodb start
 ```
 
 ##### Storage
@@ -67,7 +67,7 @@ lambda.invoke({
 })
 ```
 
-### Know issues
+### Known issues
 * If you are using `serverless-plugin-typescript`, you may notice that errors occur when this plugin tries to recompile the ts files. This happens because the plugin is looking at your Lambda invocation proxy event that is constructed by this plugin, and attempts to compile any ts files, although there aren't any.
 
 #### Copyright & license
