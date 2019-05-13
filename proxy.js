@@ -1,4 +1,6 @@
 const serializeError = require('serialize-error');
+const path = require('path');
+
 const awsSerializedError = error => {
   const { name, message, stack } = serializeError(error)
   return {
@@ -12,7 +14,7 @@ function handler(event, context, callback) {
   // extract the path to the handler (relative to the project root)
   // and the function to call on the handler
   const [targetHandlerFile, targetHandlerFunction] = event.targetHandler.split(".");
-  const target = require('../../' + targetHandlerFile);
+  const target = require(path.resolve(__dirname, '../..', event.location, targetHandlerFile));
 
   // call the target function
   target[targetHandlerFunction](event.body, context, (error, response) => {
