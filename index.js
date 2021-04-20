@@ -21,7 +21,7 @@ class ServerlessPlugin {
     // location to that directory.
     let location = '';
     try {
-      location = this.serverless.service.custom['serverless-offline'].location;
+      location = this.serverless.service.custom['serverless-offline'].location || location;
       this.serverless.service.custom['serverless-offline'].location = '';
     } catch (_) { }
 

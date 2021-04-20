@@ -7,8 +7,9 @@ async function handler(event, context) {
 
   // extract the path to the handler (relative to the project root)
   // and the function to call on the handler
-  const [targetHandlerFile, targetHandlerFunction] = event.targetHandler.split('.');
-  const target = require(path.resolve(event.location, targetHandlerFile));
+  const targetParts = event.targetHandler.split('.');
+  const [targetHandlerFunction, ...targetHandlerFile] = targetParts.reverse();
+  const target = require(path.resolve(event.location, targetHandlerFile.reverse().join('.')));
 
   const targetEvent = JSON.parse(Payload);
   const targetContext = {
